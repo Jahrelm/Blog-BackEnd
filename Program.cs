@@ -1,18 +1,59 @@
+using System.Text.RegularExpressions;
+using System.IO.Pipes;
+using System.Xml.Linq;
+using System.IO;
+using System;
+using System.Net.NetworkInformation;
+using System.Buffers;
+using System.Collections.Immutable;
 using Blog_Management.Data;
 using Blog_Management.Interfaces;
-using Blog_Management.Repositories;
+
+using Blog_Management.Repositories; 
+using Blog_Management.Models;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
-options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IBlogPostRepository, BlogPostRespository>();
+builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
+builder.Services.AddIdentity<AppUser, IdentityRole>(options => 
+{
+    options.Password.RequireDigit = true; 
+    options.Password.RequireUppercase = true; 
+})
+.AddEntityFrameworkStores<AppDbContext>();
 
+builder.Services.AddAuthentication(options => {
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["JWT:Issuer"],
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JWT:Audience"],
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"]))
+    };
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

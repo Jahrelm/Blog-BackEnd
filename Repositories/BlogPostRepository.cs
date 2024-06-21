@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Blog_Management.Repositories
 {
-    public class BlogPostRespository : IBlogPostRepository
+    public class BlogPostRepository : IBlogPostRepository
     {
         private readonly AppDbContext _dbContext;
 
-        public BlogPostRespository(AppDbContext dbContext){
+        public BlogPostRepository(AppDbContext dbContext){
             _dbContext = dbContext;
         }
 
@@ -43,4 +43,4 @@ namespace Blog_Management.Repositories
             }
         }
     }
-}
+} 
