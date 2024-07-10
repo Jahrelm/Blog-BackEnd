@@ -14,5 +14,7 @@ namespace Blog_Management.Interfaces
         Task UpdateBlogAsync(BlogPost blogPost);
         Task DeleteBlogAsync(int id);
 
+        Task<bool> BlogExists(int id);
+
     }
 }

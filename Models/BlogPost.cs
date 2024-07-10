@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog_Management.Models
 {
@@ -17,8 +18,12 @@ namespace Blog_Management.Models
         [Required]
         public string Content {get; set;} = string.Empty;
 
+        public string Category {get; set;} = string.Empty;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+       public List<Comment> Comments {get; set;} = new List<Comment>();
     }
 }

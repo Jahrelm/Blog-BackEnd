@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Blog_Management.Models;
 using Blog_Management.Interfaces;
 using Blog_Management.Repositories;
+using Blog_Management.Mappers;
+using Blog_Management.Dtos;
 
 namespace Blog_Management.Controllers
 {
@@ -24,38 +26,66 @@ namespace Blog_Management.Controllers
         public async Task<ActionResult<List<BlogPost>>> GetPosts()
         {
             var posts = await _blogPostRepo.GetAllBlogAsync();
-            return Ok(posts);
+            var postDto = posts.Select(p => p.ToBlogPostDto());
+
+            return Ok(postDto);
         }
 
         // GET: api/BlogPost/GetPostById/{id}
         [HttpGet("GetPostById/{id}")]
         public async Task<ActionResult<BlogPost>> GetPost(int id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var post = await _blogPostRepo.GetBlogByIdAsync(id);
+
             if (post == null)
             {
                 return NotFound();
             }
-            return Ok(post);
+            return Ok(post.ToBlogPostDto());
         }
 
         // POST: api/BlogPost/Add-Post
         [HttpPost("Add-Post")]
-        public async Task<ActionResult<BlogPost>> AddPost(BlogPost blogPost)
+        public async Task<ActionResult<BlogPost>> AddPost(CreateBlogPostDto blogPostDto)
         {
+            // Convert the CreateBlogPostDto to a BlogPost model
+            var blogPost = blogPostDto.ToBlogPost();
+
+            // Add the BlogPost model to the repository
             await _blogPostRepo.AddBlogAsync(blogPost);
-            return CreatedAtAction(nameof(GetPost), new { id = blogPost.Id }, blogPost);
+
+            // Convert the BlogPost model to a BlogPostDto
+            var createdBlogPostDto = blogPost.ToBlogPostDto();
+
+            // Return the created BlogPostDto with a CreatedAtAction response
+            return CreatedAtAction(nameof(GetPost), new { id = createdBlogPostDto.Id }, createdBlogPostDto);
         }
 
         // PUT: api/BlogPost/UpdatePost/{id}
         [HttpPut("UpdatePost/{id}")]
-        public async Task<IActionResult> UpdatePost(int id, BlogPost blogPost)
+        public async Task<IActionResult> UpdatePost(int id, BlogPostDto blogPostDto)
         {
-            if (id != blogPost.Id)
+            if (id != blogPostDto.Id)
             {
                 return BadRequest();
             }
-            await _blogPostRepo.UpdateBlogAsync(blogPost);
+
+            var blogPostModel = await _blogPostRepo.GetBlogByIdAsync(id);
+            if (blogPostModel == null)
+            {
+                return NotFound();
+            }
+
+            // Update properties from DTO to the model
+            blogPostModel.Title = blogPostDto.Title;
+            blogPostModel.Content = blogPostDto.Content;
+            blogPostModel.Category = blogPostDto.Category;
+            blogPostModel.UpdatedAt = DateTime.UtcNow;
+
+            await _blogPostRepo.UpdateBlogAsync(blogPostModel);
             return NoContent();
         }
 
@@ -72,5 +102,6 @@ namespace Blog_Management.Controllers
             await _blogPostRepo.DeleteBlogAsync(id);
             return NoContent();
         }
+    
     }
 }

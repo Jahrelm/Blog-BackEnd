@@ -16,9 +16,12 @@ namespace Blog_Management.Data
         }
         public DbSet<BlogPost> BlogPosts {get; set;}
 
+        public DbSet<Comment> Comments {get; set;}
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
             List<IdentityRole> roles = new List<IdentityRole>
             {
                 new IdentityRole
@@ -39,7 +42,12 @@ namespace Blog_Management.Data
                 
             };
             builder.Entity<IdentityRole>().HasData(roles);
+
+            builder.Entity<BlogPost>()
+            .Property(b => b.Id)
+            .ValueGeneratedOnAdd();
         }
+  
 
     }
 }

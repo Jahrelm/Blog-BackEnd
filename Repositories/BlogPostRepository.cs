@@ -18,11 +18,11 @@ namespace Blog_Management.Repositories
         }
 
         public async Task<List<BlogPost>> GetAllBlogAsync(){
-            return await _dbContext.BlogPosts.ToListAsync();
+            return await _dbContext.BlogPosts.Include(c => c.Comments).ToListAsync();
         }
 
         public async Task<BlogPost> GetBlogByIdAsync(int id){
-            return await _dbContext.BlogPosts.FindAsync(id);
+            return await _dbContext.BlogPosts.Include(c => c.Comments).FirstOrDefaultAsync(i => i.Id == id);
         }
 
         public async Task AddBlogAsync(BlogPost post){
@@ -41,6 +41,10 @@ namespace Blog_Management.Repositories
                 _dbContext.BlogPosts.Remove(post);
                 await _dbContext.SaveChangesAsync();
             }
+        }
+
+        public  Task<bool> BlogExists(int id){
+            return _dbContext.BlogPosts.AnyAsync(b => b.Id == id);
         }
     }
 } 
