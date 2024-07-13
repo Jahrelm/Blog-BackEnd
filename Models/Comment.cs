@@ -16,5 +16,11 @@ namespace Blog_Management.Models
         public DateTime CreatedOn {get; set;} = DateTime.Now;
 
         public BlogPost? BlogPost {get; set;}
+
+        public int? ParentCommentId {get; set;}
+        
+        public Comment? ParentComment {get; set;}
+
+        public ICollection<Comment> Replies {get; set;} = new List<Comment>();
     }
 }

@@ -9,6 +9,8 @@ namespace Blog_Management.Dtos
     {
            public string Content {get; set;} = string.Empty;
 
+           public int? ParentCommentId {get; set;}
+
            public DateTime CreatedOn {get; set;} = DateTime.Now;
     }
 }

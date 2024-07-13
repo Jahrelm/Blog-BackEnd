@@ -22,6 +22,16 @@ namespace Blog_Management.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<Comment>()
+                .HasOne(c => c.ParentComment)
+                .WithMany(c => c.Replies)
+                .HasForeignKey(c => c.ParentCommentId);
+
+            builder.Entity<Comment>()
+                .HasOne(c => c.BlogPost)
+                .WithMany(b => b.Comments)
+                .HasForeignKey(c => c.BlogPostId);
+
             List<IdentityRole> roles = new List<IdentityRole>
             {
                 new IdentityRole
@@ -35,11 +45,7 @@ namespace Blog_Management.Data
                     Name = "User",
                     NormalizedName = "USER"
 
-
-
-                }
-
-                
+                }             
             };
             builder.Entity<IdentityRole>().HasData(roles);
 

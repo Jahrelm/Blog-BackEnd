@@ -27,10 +27,9 @@ namespace Blog_Management.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetAll(){
+
             var comments = await _commentRepository.GetAllAsync();
-            
             var commentDto = comments.Select(s => s.ToCommentDto());
-            
             return Ok(commentDto);
          
         }
@@ -42,7 +41,6 @@ namespace Blog_Management.Controllers
                 return BadRequest(ModelState);
 
             var comment = await _commentRepository.GetByIdAsync(id);
-
             if (comment == null)
             {
                 return NotFound();
@@ -62,9 +60,30 @@ namespace Blog_Management.Controllers
 
             
 
-            return CreatedAtAction(nameof(GetById), new { id = commentModel }, commentModel.ToCommentDto());
+            return CreatedAtAction(nameof(GetById), new { id = commentModel.Id }, commentModel.ToCommentDto());
 
         }
-        
+
+        [HttpPost("reply/{ParentCommentId}")]
+        public async Task<ActionResult> AddCommmentToComment ([FromRoute] int ParentCommentId, CreateCommentDto commentDto){
+
+            var parentComment = await _commentRepository.GetByIdAsync(ParentCommentId);
+            if (parentComment == null){
+                return NotFound("Parent Comment not Found");
+            }
+
+            var commentModel = new Comment 
+            {
+                Content = commentDto.Content,
+                CreatedOn = commentDto.CreatedOn,
+                BlogPostId = parentComment.BlogPostId,
+                ParentCommentId = ParentCommentId
+
+            };
+            
+            await _commentRepository.CreateAsync(commentModel);
+
+            return CreatedAtAction(nameof(GetById), new {id = commentModel.Id }, commentModel.ToCommentDto());
+        }    
     }
 }

@@ -21,7 +21,9 @@ namespace Blog_Management.Repositories
 
         public async Task<List<Comment>> GetAllAsync()
         {
-           return await _dbContext.Comments.ToListAsync();
+           return await _dbContext.Comments
+           .Include(c => c.Replies)
+           .ToListAsync();
 
         }
 
@@ -33,7 +35,9 @@ namespace Blog_Management.Repositories
 
         public async Task<Comment?> GetByIdAsync(int id)
         {
-           var comment = await _dbContext.Comments.FindAsync(id);
+           var comment = await _dbContext.Comments
+            .Include(c => c.Replies)
+            .FirstOrDefaultAsync(c => c.Id == id);
            return comment;
         }
     }
