@@ -34,6 +34,16 @@ namespace Blog_Management.Controllers
          
         }
 
+        [HttpGet("GetAllPostComments/{BlogPostId}")]
+         public async Task<IActionResult> GetAllPostComment([FromRoute] int BlogPostId){
+            Console.WriteLine( BlogPostId);
+            var comments = await _commentRepository.GetPostComments( BlogPostId);
+            
+            return Ok(comments);
+         
+        }
+
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -64,6 +74,7 @@ namespace Blog_Management.Controllers
 
         }
 
+
         [HttpPost("reply/{ParentCommentId}")]
         public async Task<ActionResult> AddCommmentToComment ([FromRoute] int ParentCommentId, CreateCommentDto commentDto){
 
@@ -75,7 +86,7 @@ namespace Blog_Management.Controllers
             var commentModel = new Comment 
             {
                 Content = commentDto.Content,
-                CreatedOn = commentDto.CreatedOn,
+                CreatedOn = DateTime.Now,
                 BlogPostId = parentComment.BlogPostId,
                 ParentCommentId = ParentCommentId
 

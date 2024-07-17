@@ -19,6 +19,30 @@ namespace Blog_Management.Repositories
             
         }
 
+        //get comment by postId
+
+         public async Task<List<Comment>> GetPostComments(int postId)
+        {
+           var comments =  _dbContext.Comments
+            .Where(c => c.BlogPostId == postId && c.ParentCommentId == null)
+            .ToList();
+
+          
+
+           var replies =  _dbContext.Comments
+           .Where(c => c.BlogPostId == postId && c.ParentCommentId != null)
+           .ToList();
+
+              Console.WriteLine("Replies : "+ replies.Count);
+
+            foreach( var comment in comments){
+                comment.Replies = replies.Where(r => r.ParentCommentId == comment.Id)
+                .ToList();
+            }
+
+           return comments;
+        }
+
         public async Task<List<Comment>> GetAllAsync()
         {
            return await _dbContext.Comments

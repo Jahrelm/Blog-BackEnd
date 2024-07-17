@@ -15,6 +15,7 @@ namespace Blog_Management.Controllers
     public class BlogPostController : ControllerBase
     {
         private readonly IBlogPostRepository _blogPostRepo;
+        private readonly ICommentRepository _commentRepo;
 
         public BlogPostController(IBlogPostRepository blogPostRepo)
         {
@@ -33,6 +34,7 @@ namespace Blog_Management.Controllers
 
         // GET: api/BlogPost/GetPostById/{id}
         [HttpGet("GetPostById/{id}")]
+        //separate comments from posts
         public async Task<ActionResult<BlogPost>> GetPost(int id)
         {
             if (!ModelState.IsValid)
@@ -44,7 +46,8 @@ namespace Blog_Management.Controllers
             {
                 return NotFound();
             }
-            return Ok(post.ToBlogPostDto());
+            //post.Comments = await _commentRepo.GetPostComments(id);
+            return Ok(post);
         }
 
         // POST: api/BlogPost/Add-Post

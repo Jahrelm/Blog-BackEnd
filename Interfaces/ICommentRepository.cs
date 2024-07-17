@@ -11,6 +11,7 @@ namespace Blog_Management.Interfaces
         Task<List<Comment>> GetAllAsync();
         Task<Comment?> GetByIdAsync(int id);
         Task<Comment> CreateAsync(Comment commentModel);
+        Task<List<Comment>> GetPostComments(int postId);
 
     }
 }
